@@ -1,4 +1,4 @@
-module ccnu-service
+module github.com/asynccnu/ccnu-service
 
 go 1.19
 
