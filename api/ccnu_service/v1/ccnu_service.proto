@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package api.ccnu_service.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "api/ccnu_service/v1;v1";
+
+message User {
+  string userid = 1;
+  string password = 2;
+}
+
+message SaveUserRequest {
+  User user = 1;
+}
+
+message SaveUserResponse {
+  string message = 1;
+}
+
+message GetCookieRequest {
+  string userid = 1;
+}
+
+message GetCookieResponse {
+  string cookie = 1;
+}
+
+service CCNUService {
+  rpc SaveUser(SaveUserRequest) returns (SaveUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/save_user"
+      body: "*"
+    };
+  }
+
+  rpc GetCookie(GetCookieRequest) returns (GetCookieResponse) {
+    option (google.api.http) = {
+      get: "/v1/login/{userid}"
+    };
+  }
+}

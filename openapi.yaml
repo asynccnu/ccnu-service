@@ -1,0 +1,97 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /helloworld/{name}:
+        get:
+            tags:
+                - Greeter
+            description: Sends a greeting
+            operationId: Greeter_SayHello
+            parameters:
+                - name: name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+    /v1/login/{userid}:
+        get:
+            tags:
+                - CCNUService
+            operationId: CCNUService_GetCookie
+            parameters:
+                - name: userid
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.ccnu_service.v1.GetCookieResponse'
+    /v1/save_user:
+        post:
+            tags:
+                - CCNUService
+            operationId: CCNUService_SaveUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.ccnu_service.v1.SaveUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.ccnu_service.v1.SaveUserResponse'
+components:
+    schemas:
+        api.ccnu_service.v1.GetCookieResponse:
+            type: object
+            properties:
+                cookie:
+                    type: string
+        api.ccnu_service.v1.SaveUserRequest:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/api.ccnu_service.v1.User'
+        api.ccnu_service.v1.SaveUserResponse:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.ccnu_service.v1.User:
+            type: object
+            properties:
+                userid:
+                    type: string
+                password:
+                    type: string
+        helloworld.v1.HelloReply:
+            type: object
+            properties:
+                message:
+                    type: string
+            description: The response message containing the greetings
+tags:
+    - name: CCNUService
+    - name: Greeter
+      description: The greeting service definition.
