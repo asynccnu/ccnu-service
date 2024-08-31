@@ -1,0 +1,16 @@
+server:
+  http:
+    network: tcp
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    network: tcp
+    addr: 0.0.0.0:9000
+    timeout: 1s
+
+data:
+  database_source: "root:12345678@tcp(127.0.0.1:12306)/users?charset=utf8mb4&parseTime=True&loc=Local"
+
+registry:
+  etcd:
+    endpoint: "127.0.0.1:2379"
