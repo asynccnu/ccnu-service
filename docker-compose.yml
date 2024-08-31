@@ -16,15 +16,16 @@ services:
 
   db:
     image: mysql
-    container_name: mysql-db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 040906
-      MYSQL_DATABASE: users
+    restart: "always"
     ports:
-      - "3306:3306"
+      - "12306:3306"
+    # 账号密码
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345678"
+      MYSQL_DATABASE: "users"
+    # 文件夹以及文件映射
     volumes:
-      - ./db-data:/var/lib/mysql
+      - "./mysql/data:/var/lib/mysql"
 #    networks:
 #      - kratos-network
 

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package conf;
 
+import "google/protobuf/duration.proto";
+
 option go_package = "internal/conf";
 message Bootstrap {
   Server server = 1;
@@ -20,13 +22,13 @@ message Server {
 message Http {
     string network = 1;
     string addr = 2;
-    int32 timeout = 3;
+    google.protobuf.Duration timeout = 3;
 }
 
 message Grpc {
     string network = 1;
     string addr = 2;
-    int32 timeout = 3;
+    google.protobuf.Duration timeout = 3;
 }
 
 message Registry {

@@ -14,7 +14,7 @@ var ProviderSet = wire.NewSet(NewRegistrarServer)
 
 func NewRegistrarServer(c *conf.Registry, logger log.Logger) *etcd.Registry {
 	// ETCD源地址
-	endpoints := []string{c.Etcd.String()}
+	endpoints := []string{c.Etcd.Endpoint}
 
 	// ETCD配置信息
 	etcdCfg := clientv3.Config{

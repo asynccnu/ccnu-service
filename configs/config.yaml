@@ -9,7 +9,8 @@ server:
     timeout: 1s
 
 data:
-  database_source: "root:040906@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+  database_source: "root:12345678@tcp(127.0.0.1:12306)/users?charset=utf8mb4&parseTime=True&loc=Local"
 
-etcd:
-  endpoint: "127.0.0.1:2379"
+registry:
+  etcd:
+    endpoint: "127.0.0.1:2379"
