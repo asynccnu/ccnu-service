@@ -1,11 +1,12 @@
 package service
 
 import (
-	v1 "ccnu-service/api/ccnu_service/v1"
-	"ccnu-service/internal/biz"
 	"context"
-	"database/sql"
 	"fmt"
+	v1 "github.com/asynccnu/ccnu-service/api/ccnu_service/v1"
+	"github.com/asynccnu/ccnu-service/internal/biz"
+	"github.com/go-kratos/kratos/v2/errors"
+	"gorm.io/gorm"
 	"net/http"
 	"strings"
 )
@@ -20,7 +21,7 @@ func NewCCNUService(uc *biz.UserUsecase) *CCNUService {
 }
 
 func (s *CCNUService) SaveUser(ctx context.Context, req *v1.SaveUserRequest) (*v1.SaveUserResponse, error) {
-	err := s.uc.Save(ctx, &biz.User{
+	err := s.uc.SaveUser(ctx, &biz.User{
 		UserID:   req.User.Userid,
 		Password: req.User.Password,
 	})
@@ -31,9 +32,9 @@ func (s *CCNUService) SaveUser(ctx context.Context, req *v1.SaveUserRequest) (*v
 }
 
 func (s *CCNUService) GetCookie(ctx context.Context, req *v1.GetCookieRequest) (*v1.GetCookieResponse, error) {
-	user, err := s.uc.GetByUserID(ctx, req.Userid)
+	user, err := s.uc.GetUserByIDFromDB(ctx, req.Userid)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user not found")
 		}
 		return nil, err
@@ -64,11 +65,26 @@ func loginCCNU(username, password string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	for _, cookie := range resp.Cookies() {
-		if cookie.Name == "CASTGC" { // 使用真实的cookie名称
-			return cookie.Value, nil
-		}
+	// 获取Set-Cookie头的内容
+	cookieHeader := resp.Header.Get("Set-Cookie")
+
+	// 找到JSESSIONID的开始位置
+	cookieStart := strings.Index(cookieHeader, "JSESSIONID=")
+	if cookieStart == -1 {
+		return "", fmt.Errorf("JSESSIONID not found in cookies")
 	}
 
-	return "", nil
+	// 找到JSESSIONID值的结束位置
+	cookieEnd := strings.Index(cookieHeader[cookieStart:], ";")
+	if cookieEnd == -1 {
+		cookieEnd = len(cookieHeader) // 如果没有;，则直接到字符串末尾
+	} else {
+		cookieEnd += cookieStart
+	}
+
+	// 提取JSESSIONID值
+	jsessionID := cookieHeader[cookieStart:cookieEnd]
+
+	return jsessionID, nil
+
 }

@@ -1,15 +1,15 @@
 server:
   http:
+    network: tcp
     addr: 0.0.0.0:8000
     timeout: 1s
   grpc:
+    network: tcp
     addr: 0.0.0.0:9000
     timeout: 1s
+
 data:
-  database:
-    driver: mysql
-    source: root:root@tcp(127.0.0.1:3306)/test?parseTime=True&loc=Local
-  redis:
-    addr: 127.0.0.1:6379
-    read_timeout: 0.2s
-    write_timeout: 0.2s
+  database_source: "root:040906@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+
+etcd:
+  endpoint: "127.0.0.1:2379"

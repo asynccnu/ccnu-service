@@ -1,27 +1,29 @@
 package data
 
 import (
-	"ccnu-service/internal/biz"
 	"context"
+	"github.com/asynccnu/ccnu-service/internal/biz"
 )
 
-type userRepo struct {
+type UserRepo struct {
 	data *Data
 }
 
-func NewUserRepo(data *Data) biz.UserRepo {
-	return &userRepo{
+func NewUserRepo(data *Data) *UserRepo {
+	return &UserRepo{
 		data: data,
 	}
 }
 
-func (r *userRepo) Save(ctx context.Context, user *biz.User) error {
-	return r.data.DB.WithContext(ctx).Create(&user).Error
+func (r *UserRepo) Save(ctx context.Context, user *biz.User) error {
+	db := r.data.DB.Table(biz.UserTableName).WithContext(ctx)
+	return db.FirstOrCreate(&user).Error
 }
 
-func (r *userRepo) GetByUserID(ctx context.Context, userID string) (*biz.User, error) {
+func (r *UserRepo) GetByUserID(ctx context.Context, userID string) (*biz.User, error) {
 	var user biz.User
-	err := r.data.DB.WithContext(ctx).Where("userid = ?", userID).First(&user).Error
+	db := r.data.DB.Table(biz.UserTableName).WithContext(ctx)
+	err := db.Where("userid = ?", userID).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

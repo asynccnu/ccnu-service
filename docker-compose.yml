@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+#  kratos-service:
+#    build: .
+#    container_name: kratos-service
+#    ports:
+#      - "8000:8000"
+#      - "9000:9000"
+#    depends_on:
+#      - db
+#    environment:
+#      - DATABASE_SOURCE=user:password@tcp(db:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+#    networks:
+#      - kratos-network
+
+  db:
+    image: mysql
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 040906
+      MYSQL_DATABASE: users
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db-data:/var/lib/mysql
+#    networks:
+#      - kratos-network
+
+#networks:
+#  kratos-network:
+#
+#volumes:
+#  db-data:
