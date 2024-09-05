@@ -32,6 +32,8 @@ func (s *CCNUService) SaveUser(ctx context.Context, req *v1.SaveUserRequest) (*v
 }
 
 func (s *CCNUService) GetCookie(ctx context.Context, req *v1.GetCookieRequest) (*v1.GetCookieResponse, error) {
+	var cookie string
+	var err error
 	user, err := s.uc.GetUserByIDFromDB(ctx, req.Userid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -40,16 +42,24 @@ func (s *CCNUService) GetCookie(ctx context.Context, req *v1.GetCookieRequest) (
 		return nil, err
 	}
 
-	cookie, err := loginCCNU(user.Username, user.Password)
-	if err != nil {
-		return nil, fmt.Errorf("failed to login: %v", err)
+	if CheckIsUndergraduate(user.UserID) {
+		cookie, err = BKSloginCCNU(user.UserID, user.Password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to login: %v", err)
+		}
 	}
 
 	return &v1.GetCookieResponse{Cookie: cookie}, nil
 }
 
-// 模拟登录CCNU并返回Cookie
-func loginCCNU(username, password string) (string, error) {
+// CheckIsUndergraduate 检查该学号是否是本科生
+func CheckIsUndergraduate(stuId string) bool {
+	return stuId[4] == '2'
+	//区分是学号第五位，本科是2，硕士是1，博士是0，工号是6或9
+}
+
+// BKSloginCCNU 模拟本科生登录CCNU并返回Cookie
+func BKSloginCCNU(username, password string) (string, error) {
 	loginURL := "https://account.ccnu.edu.cn/cas/login" // 真实的登录URL
 	data := fmt.Sprintf("username=%s&password=%s", username, password)
 	req, err := http.NewRequest("POST", loginURL, strings.NewReader(data))
@@ -64,27 +74,34 @@ func loginCCNU(username, password string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-
-	// 获取Set-Cookie头的内容
-	cookieHeader := resp.Header.Get("Set-Cookie")
-
-	// 找到JSESSIONID的开始位置
-	cookieStart := strings.Index(cookieHeader, "JSESSIONID=")
-	if cookieStart == -1 {
-		return "", fmt.Errorf("JSESSIONID not found in cookies")
+	var value string
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == "JSESSIONID" {
+			value = cookie.Value
+		}
 	}
-
-	// 找到JSESSIONID值的结束位置
-	cookieEnd := strings.Index(cookieHeader[cookieStart:], ";")
-	if cookieEnd == -1 {
-		cookieEnd = len(cookieHeader) // 如果没有;，则直接到字符串末尾
-	} else {
-		cookieEnd += cookieStart
-	}
-
-	// 提取JSESSIONID值
-	jsessionID := cookieHeader[cookieStart:cookieEnd]
-
-	return jsessionID, nil
-
+	return fmt.Sprintf("JSESSIONID=%s", value), nil
 }
+
+//func YJSloginCCNU(id, mm string) (cookie string, err error) {
+//	client := &http.Client{}
+//	mp := make(map[string]string)
+//	str := fmt.Sprintf("csrftoken=&yhm=%s&mm=%s", id, mm)
+//	var data = strings.NewReader(str)
+//	timestamp := time.Now().Unix()
+//	url := fmt.Sprintf("https://grd.ccnu.edu.cn/yjsxt/xtgl/login_slogin.html?time=%d", timestamp)
+//	req, err := http.NewRequest("POST", url, data)
+//	if err != nil {
+//		return "", err
+//	}
+//	resp, err := client.Do(req)
+//	if err != nil {
+//		return "", err
+//	}
+//	defer resp.Body.Close()
+//	for _, v := range resp.Cookies() {
+//		mp[v.Name] = v.Value
+//	}
+//	cookie = fmt.Sprintf("JSESSIONID=%s; route=%s", mp["JSESSIONID"], mp["route"])
+//	return cookie, nil
+//}

@@ -10,7 +10,6 @@ const UserTableName = "users"
 
 type User struct {
 	UserID    string `gorm:"primaryKey;column:userid" json:"userid"`
-	Username  string `gorm:"column:username" json:"username"`
 	Password  string `gorm:"column:password" json:"password"`
 	CreatedAt time.Time
 }
